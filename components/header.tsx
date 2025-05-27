@@ -100,7 +100,6 @@ function Header() {
     // Entire <header> JSX remains unchanged from your original message
     // including the mobile nav, desktop nav, user menus, etc.
     // No need to repeat the JSX here unless you need changes
-  )
 }
 
 export default Header
