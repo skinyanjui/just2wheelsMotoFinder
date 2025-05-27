@@ -1,0 +1,108 @@
+# Loading Patterns Documentation
+
+This document outlines the standardized loading patterns used throughout the Just2Wheels application.
+
+## Core Principles
+
+1. **Minimize Layout Shift** - Loading skeletons should match the dimensions and structure of the actual content
+2. **Visual Feedback** - Provide clear visual indication that content is loading
+3. **Consistent Experience** - Use standardized loading components across the application
+4. **Graceful Degradation** - Handle errors and edge cases gracefully
+
+## Loading Components
+
+The application uses a set of standardized loading components found in `components/ui/loading-skeleton.tsx`:
+
+- `LoadingSkeleton` - Base skeleton component for creating custom loading states
+- `CardSkeleton` - Skeleton for card-based content
+- `ListingSkeleton` - Skeleton for listing items
+- `ProfileSkeleton` - Skeleton for user profile information
+- `TableRowSkeleton` - Skeleton for table rows
+- `MessageSkeleton` - Skeleton for chat messages
+
+## Implementation Pattern
+
+### 1. Create a Loading File
+
+For each page that requires loading states, create a corresponding `loading.tsx` file in the same directory:
+
+\`\`\`tsx
+// app/example/loading.tsx
+import { CardSkeleton } from "@/components/ui/loading-skeleton"
+
+export default function ExampleLoading() {
+  return (
+    <div className="container mx-auto py-8">
+      <CardSkeleton className="mb-6" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array(6).fill(0).map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  )
+}
+\`\`\`
+
+### 2. Use Suspense for Component-Level Loading
+
+For more granular loading states within a page, use Suspense:
+
+\`\`\`tsx
+import { Suspense } from "react"
+import { ListingSkeleton } from "@/components/ui/loading-skeleton"
+import ListingComponent from "./listing-component"
+
+export default function Page() {
+  return (
+    <div>
+      <h1>My Page</h1>
+      <Suspense fallback={<ListingSkeleton />}>
+        <ListingComponent />
+      </Suspense>
+    </div>
+  )
+}
+\`\`\`
+
+### 3. Error Handling
+
+Use the ErrorBoundary component to handle errors:
+
+\`\`\`tsx
+import { ErrorBoundary } from "@/components/error-boundary"
+import MyComponent from "./my-component"
+
+export default function Page() {
+  return (
+    <ErrorBoundary>
+      <MyComponent />
+    </ErrorBoundary>
+  )
+}
+\`\`\`
+
+## Testing Loading States
+
+Use the network throttling utility to test loading states:
+
+\`\`\`tsx
+import { enableNetworkThrottle, disableNetworkThrottle } from "@/lib/network-throttle"
+
+// In a development environment or test:
+enableNetworkThrottle(2000) // 2 second delay
+
+// When done testing:
+disableNetworkThrottle()
+\`\`\`
+
+## Best Practices
+
+1. **Match Content Structure** - Loading skeletons should match the structure of the actual content
+2. **Avoid Flashing** - For quick operations, consider adding a minimum display time
+3. **Progressive Loading** - Load critical content first, then non-critical content
+4. **Provide Context** - Use shapes and layouts that hint at the content being loaded
+5. **Accessibility** - Ensure loading states are accessible (use aria-busy, etc.)
+\`\`\`
+
+Now, let's update the existing loading components to use our new standardized components:
