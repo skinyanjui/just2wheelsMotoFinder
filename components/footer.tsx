@@ -74,17 +74,17 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-muted-foreground hover:text-foreground">
+                <Link href="/terms-of-service" className="text-muted-foreground hover:text-foreground">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
+                <Link href="/privacy-policy" className="text-muted-foreground hover:text-foreground">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/safety" className="text-muted-foreground hover:text-foreground">
+                <Link href="/safety-tips" className="text-muted-foreground hover:text-foreground">
                   Safety Tips
                 </Link>
               </li>
