@@ -1,0 +1,147 @@
+# Server Component Migration Guide
+
+This document outlines components that could be migrated from Client Components to Server Components to improve performance and reduce client-side JavaScript.
+
+## Benefits of Server Components
+
+1. **Reduced Client-Side JavaScript** - Server Components don't ship any JavaScript to the client
+2. **Improved Performance** - Initial page load is faster without client-side hydration
+3. **Direct Backend Access** - Server Components can directly access backend resources
+4. **Automatic Code Splitting** - Client Components are automatically code-split
+
+## Components to Consider for Migration
+
+### High Priority
+
+These components have minimal interactivity and would benefit most from being Server Components:
+
+1. **`components/category-grid.tsx`**
+   - Primarily displays static data
+   - No user interactions except links
+   - Could fetch category data server-side
+
+2. **`components/how-it-works.tsx`**
+   - Static content with no interactivity
+   - Perfect candidate for a Server Component
+
+3. **`app/about/page.tsx`**
+   - Static content page
+   - No client-side interactivity
+
+4. **`app/faq/page.tsx`**
+   - Currently uses client-side for Accordion
+   - Could be refactored to use a Server Component with a Client Component for just the Accordion
+
+### Medium Priority
+
+These components have some interactivity but could be split into Server and Client parts:
+
+1. **`components/featured-listings.tsx`**
+   - Data fetching could be moved to the server
+   - Only the favorite button needs to be a Client Component
+   - Use a pattern where the main component is a Server Component with Client Component islands
+
+2. **`app/listings/page.tsx`**
+   - Initial data fetch could be server-side
+   - Filter UI would remain client-side
+   - Split into Server Component for initial render and Client Components for interactive parts
+
+3. **`components/similar-listings.tsx`**
+   - Similar to featured-listings, data fetching could be server-side
+   - Only interactive elements would be Client Components
+
+### Low Priority
+
+These components are heavily interactive and should remain as Client Components:
+
+1. **`app/messages/page.tsx`**
+   - Real-time messaging requires client-side interactivity
+   - Keep as Client Component
+
+2. **`app/auth/login/page.tsx`** and **`app/auth/register/page.tsx`**
+   - Form handling and validation are client-side concerns
+   - Keep as Client Components
+
+3. **`app/listings/create/page.tsx`**
+   - Complex form with many interactive elements
+   - Keep as Client Component
+
+## Migration Pattern
+
+When migrating a component to a Server Component:
+
+1. **Remove the "use client" directive**
+2. **Extract interactive parts** into separate Client Components
+3. **Move data fetching** to the Server Component
+4. **Pass data as props** to Client Components
+
+### Example: Converting a Component
+
+Before:
+\`\`\`tsx
+"use client"
+
+import { useState, useEffect } from "react"
+
+export default function ExampleComponent() {
+  const [data, setData] = useState([])
+  
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(data => setData(data))
+  }, [])
+  
+  return (
+    <div>
+      {data.map(item => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+      <button onClick={() => console.log('clicked')}>Click Me</button>
+    </div>
+  )
+}
+\`\`\`
+
+After:
+\`\`\`tsx
+// Server Component (ExampleComponent.tsx)
+import { InteractiveButton } from "./interactive-button"
+
+async function getData() {
+  const res = await fetch('/api/data')
+  return res.json()
+}
+
+export default async function ExampleComponent() {
+  const data = await getData()
+  
+  return (
+    <div>
+      {data.map(item => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+      <InteractiveButton />
+    </div>
+  )
+}
+
+// Client Component (interactive-button.tsx)
+"use client"
+
+export function InteractiveButton() {
+  return (
+    <button onClick={() => console.log('clicked')}>Click Me</button>
+  )
+}
+\`\`\`
+
+## Testing Server Components
+
+When testing Server Components:
+
+1. **Ensure proper data fetching** - Server Components should handle their own data fetching
+2. **Test with and without JavaScript** - Server Components should work even with JavaScript disabled
+3. **Verify SEO benefits** - Check that content is properly indexed by search engines
+4. **Monitor performance improvements** - Measure the reduction in JavaScript bundle size
+\`\`\`

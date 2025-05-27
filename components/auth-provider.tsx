@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { createContext, useState, useEffect } from "react"
 
 interface User {
@@ -28,7 +27,6 @@ export const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
 
-  // Check for existing session on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
@@ -41,10 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const generateId = () => {
+    // Generate a simple UUID using browser crypto
+    const array = new Uint8Array(16)
+    crypto.getRandomValues(array)
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+  }
+
   const signIn = async (email: string, password: string) => {
-    // In a real app, this would be an API call to your auth endpoint
     try {
-      // Mock successful login
       if (email && password) {
         const mockUser: User = {
           id: "user-1",
@@ -69,12 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const register = async (name: string, email: string, password: string) => {
-    // In a real app, this would be an API call to your registration endpoint
     try {
-      // Mock successful registration
       if (name && email && password) {
         const mockUser: User = {
-          id: "user-" + Math.floor(Math.random() * 1000),
+          id: "user-" + generateId(),
           name,
           email,
           image: "/placeholder.svg?height=200&width=200&query=person",
@@ -90,5 +91,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  return <AuthContext.Provider value={{ user, signIn, signOut, register }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, signIn, signOut, register }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
