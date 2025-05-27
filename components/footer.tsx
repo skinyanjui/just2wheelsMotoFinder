@@ -11,24 +11,6 @@ export default function Footer() {
             <p className="text-sm text-muted-foreground">
               The premier marketplace for motorcycles and related items. Buy, sell, and connect with fellow enthusiasts.
             </p>
-            <div className="mt-4 flex space-x-4">
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <Facebook className="h-5 w-5" />
-                <span className="sr-only">Facebook</span>
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <Twitter className="h-5 w-5" />
-                <span className="sr-only">Twitter</span>
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <Instagram className="h-5 w-5" />
-                <span className="sr-only">Instagram</span>
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <Youtube className="h-5 w-5" />
-                <span className="sr-only">YouTube</span>
-              </Link>
-            </div>
           </div>
           <div>
             <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
@@ -101,10 +83,12 @@ export default function Footer() {
                 placeholder="Your email address"
                 className="rounded-md border bg-background px-3 py-2 text-sm"
                 required
+                disabled
               />
               <button
                 type="submit"
                 className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                disabled
               >
                 Subscribe
               </button>
