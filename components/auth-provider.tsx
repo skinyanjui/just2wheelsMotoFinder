@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Mock successful registration
       if (name && email && password) {
         const mockUser: User = {
-          id: "user-" + Math.floor(Math.random() * 1000),
+          id: "user-" + crypto.randomUUID(),
           name,
           email,
           image: "/placeholder.svg?height=200&width=200&query=person",
