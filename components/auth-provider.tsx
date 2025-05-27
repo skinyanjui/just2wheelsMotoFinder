@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { createContext, useState, useEffect } from "react"
+import crypto from "crypto";
 
 interface User {
   id: string
@@ -74,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Mock successful registration
       if (name && email && password) {
         const mockUser: User = {
-          id: "user-" + Math.floor(Math.random() * 1000),
+          id: "user-" + crypto.randomBytes(4).toString("hex"),
           name,
           email,
           image: "/placeholder.svg?height=200&width=200&query=person",
