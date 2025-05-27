@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils"
 function Header() {
   const pathname = usePathname()
   const { user, signOut } = useAuth()
+  const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const isMobile = useMediaQuery("(max-width: 768px)")
@@ -66,7 +67,7 @@ function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      window.location.href = `/listings?q=${encodeURIComponent(searchQuery)}`
+      router.push(`/listings?q=${encodeURIComponent(searchQuery)}`)
     }
   }
 
