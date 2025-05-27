@@ -51,11 +51,7 @@ export default function NotificationDropdown({
           </div>
         </ScrollArea>
       )}
-      <div className="border-t p-2 text-center">
-        <Button variant="ghost" size="sm" asChild className="w-full" onClick={onClose}>
-          <Link href="/notifications">View all notifications</Link>
-        </Button>
-      </div>
+      {/* Footer with "View all notifications" link removed */}
     </div>
   );
 }

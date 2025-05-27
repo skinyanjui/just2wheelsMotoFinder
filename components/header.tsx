@@ -78,7 +78,7 @@ export default function Header() {
     { name: "Home", href: "/" },
     { name: "Listings", href: "/listings" },
     { name: "Categories", href: "/categories" },
-    { name: "How It Works", href: "/how-it-works" },
+    // { name: "How It Works", href: "/how-it-works" }, // Removed
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
