@@ -1,0 +1,127 @@
+# Authentication in Just2Wheels
+
+This document outlines the authentication system used in the Just2Wheels application.
+
+## Authentication Flow
+
+1. **User Registration**: Users register with email, password, and basic profile information.
+2. **User Login**: Users log in with email and password.
+3. **Session Management**: Sessions are maintained using HTTP-only cookies.
+4. **Protected Routes**: Certain routes require authentication to access.
+
+## Components
+
+### AuthProvider
+
+The `AuthProvider` component provides authentication context to the entire application:
+
+\`\`\`tsx
+import { AuthProvider } from '@/components/auth-provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <AuthProvider>
+      {children}
+    </AuthProvider>
+  );
+}
+\`\`\`
+
+### useAuth Hook
+
+The `useAuth` hook provides access to authentication state and methods:
+
+\`\`\`tsx
+import { useAuth } from '@/hooks/use-auth';
+
+export default function ProfilePage() {
+  const { user, signOut } = useAuth();
+  
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+  
+  return (
+    <div>
+      <h1>Welcome, {user.name}</h1>
+      <button onClick={signOut}>Sign Out</button>
+    </div>
+  );
+}
+\`\`\`
+
+## Protected Routes
+
+Protected routes are handled by the middleware:
+
+\`\`\`tsx
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Check if user is authenticated
+  const isAuthenticated = request.cookies.has('auth-token');
+  
+  // Protect routes that require authentication
+  if (pathname.startsWith('/profile') && !isAuthenticated) {
+    return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+  
+  return NextResponse.next();
+}
+\`\`\`
+
+## Authentication Forms
+
+### Login Form
+
+The login form collects user credentials and calls the `signIn` method:
+
+\`\`\`tsx
+import { useAuth } from '@/hooks/use-auth';
+
+export default function LoginForm() {
+  const { signIn } = useAuth();
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    
+    const result = await signIn(email, password);
+    
+    if (result.success) {
+      // Redirect or show success message
+    } else {
+      // Show error message
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+    </form>
+  );
+}
+\`\`\`
+
+## Social Authentication
+
+Social authentication is implemented using OAuth providers:
+
+1. User clicks on social login button
+2. User is redirected to the provider's authentication page
+3. After successful authentication, user is redirected back to the application
+4. The application verifies the authentication and creates a session
+
+## Security Considerations
+
+1. **Password Storage**: Passwords are hashed using bcrypt.
+2. **CSRF Protection**: CSRF tokens are used for form submissions.
+3. **Rate Limiting**: API endpoints are rate-limited to prevent brute force attacks.
+4. **Session Expiry**: Sessions expire after a period of inactivity.
+\`\`\`

@@ -1,36 +1,67 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Paths that require authentication
+// Define paths that require authentication
 const protectedPaths = [
-  "/profile",
-  "/messages",
   "/listings/create",
   "/listings/my-listings",
-  "/saved-searches",
+  "/messages",
+  "/profile",
   "/favorites",
+  "/saved-searches",
   "/notifications",
 ]
 
-// Paths that should redirect to dashboard if user is already authenticated
+// Define paths that should redirect authenticated users
 const authPaths = ["/auth/login", "/auth/register"]
 
 export function middleware(request: NextRequest) {
-  const currentPath = request.nextUrl.pathname
+  const { pathname } = request.nextUrl
 
-  // Check if user is authenticated (has a session token)
-  const isAuthenticated = request.cookies.has("auth-token")
+  // Check if user is authenticated by looking for the auth cookie
+  const authToken = request.cookies.get("auth-token")
+  const isAuthenticated = !!authToken?.value
 
-  // If accessing a protected path without authentication
-  if (protectedPaths.some((path) => currentPath.startsWith(path)) && !isAuthenticated) {
-    const url = new URL("/auth/login", request.url)
-    url.searchParams.set("callbackUrl", encodeURI(currentPath))
-    return NextResponse.redirect(url)
+  // For a real app, we would verify the token here
+  // This is a simplified implementation
+  let tokenIsValid = false
+
+  if (isAuthenticated) {
+    try {
+      // Basic validation - check if token is properly formatted
+      const decodedToken = JSON.parse(atob(authToken.value))
+      const currentTime = Date.now() / 1000
+
+      // Check if token has required fields and is not expired
+      tokenIsValid = !!(decodedToken.sub && decodedToken.exp && decodedToken.exp > currentTime)
+    } catch (error) {
+      console.error("Token validation failed:", error)
+      tokenIsValid = false
+    }
   }
 
-  // If accessing auth pages while already authenticated
-  if (authPaths.some((path) => currentPath === path) && isAuthenticated) {
-    return NextResponse.redirect(new URL("/", request.url))
+  // Handle protected routes - redirect to login if not authenticated
+  if (protectedPaths.some((path) => pathname.startsWith(path)) && (!isAuthenticated || !tokenIsValid)) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/login"
+    url.searchParams.set("callbackUrl", pathname)
+
+    // Create response with redirect
+    const response = NextResponse.redirect(url)
+
+    // If token is invalid, clear it
+    if (isAuthenticated && !tokenIsValid) {
+      response.cookies.delete("auth-token")
+    }
+
+    return response
+  }
+
+  // Redirect authenticated users away from auth pages
+  if (authPaths.some((path) => pathname === path) && isAuthenticated && tokenIsValid) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
   }
 
   return NextResponse.next()
@@ -39,12 +70,12 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
+     * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
+     * - public (public files)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
 }

@@ -1,112 +1,157 @@
-// app/listings/page.tsx
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import ListingCard from "@/components/listing-card"
-import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, ListFilter } from "lucide-react"
-import { mockListings as initialMockListings } from "@/lib/mock-data/listings" // Ensure this path is correct
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Heart, SlidersHorizontal, X } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/use-auth"
 
 interface Listing {
   id: string
   title: string
   price: number
   location: string
-  category: string // "motorcycles", "parts", "gear", "services"
-  condition: string // "New", "Used", "Used - Like New", "Used - Good", "Used - Fair", "For Parts"
-  make?: string // Added
-  model?: string // Added
+  category: string
+  condition: string
   imageUrl: string
   isFeatured: boolean
-  createdAt: string // ISO date string
-  description?: string
-  seller?: { name: string; avatarUrl?: string; isVerified?: boolean }
+  createdAt: string
 }
 
-function ListingsPageContent() {
+export default function ListingsPage() {
   const searchParams = useSearchParams()
-  const router = useRouter()
+  const { toast } = useToast()
+  const { user } = useAuth()
 
-  // Initial state from search params or defaults
-  const [listings, setListings] = useState<Listing[]>(initialMockListings)
-  const [filteredListings, setFilteredListings] = useState<Listing[]>(initialMockListings)
+  const [listings, setListings] = useState<Listing[]>([])
+  const [filteredListings, setFilteredListings] = useState<Listing[]>([])
+  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [showFilters, setShowFilters] = useState(false)
 
+  // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "")
   const [selectedLocation, setSelectedLocation] = useState(searchParams.get("location") || "")
-  const [selectedMake, setSelectedMake] = useState(searchParams.get("make") || "") // Added
-  const [selectedModel, setSelectedModel] = useState(searchParams.get("model") || "") // Added
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000])
+  const [conditions, setConditions] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState("newest")
 
-  const initialMinPrice = searchParams.get("minPrice") ? Number.parseInt(searchParams.get("minPrice")!, 10) : 0
-  const initialMaxPrice = searchParams.get("maxPrice") ? Number.parseInt(searchParams.get("maxPrice")!, 10) : 50000
-  const [priceRange, setPriceRange] = useState<[number, number]>([initialMinPrice, initialMaxPrice])
-
-  const initialConditions = searchParams.get("conditions") ? searchParams.get("conditions")!.split(",") : []
-  const [conditions, setConditions] = useState<string[]>(initialConditions)
-
-  const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "newest")
-  const [showFilters, setShowFilters] = useState(false)
-
-  // Update URL when filters change
   useEffect(() => {
-    const params = new URLSearchParams()
-    if (searchQuery) params.set("q", searchQuery)
-    if (selectedCategory) params.set("category", selectedCategory)
-    if (selectedLocation) params.set("location", selectedLocation)
-    if (selectedMake) params.set("make", selectedMake)
-    if (selectedModel) params.set("model", selectedModel)
-    if (priceRange[0] !== 0) params.set("minPrice", priceRange[0].toString())
-    if (priceRange[1] !== 50000) params.set("maxPrice", priceRange[1].toString())
-    if (conditions.length > 0) params.set("conditions", conditions.join(","))
-    if (sortBy !== "newest") params.set("sortBy", sortBy)
+    // In a real app, this would be an API call with the search params
+    const mockListings: Listing[] = [
+      {
+        id: "1",
+        title: "2022 Kawasaki Ninja ZX-6R",
+        price: 11999,
+        location: "Seattle, WA",
+        category: "motorcycles",
+        condition: "New",
+        imageUrl: "/kawasaki-ninja-motorcycle.png",
+        isFeatured: true,
+        createdAt: "2023-05-15T14:30:00Z",
+      },
+      {
+        id: "2",
+        title: "2020 Harley-Davidson Street Glide",
+        price: 18500,
+        location: "Portland, OR",
+        category: "motorcycles",
+        condition: "Used",
+        imageUrl: "/classic-harley.png",
+        isFeatured: true,
+        createdAt: "2023-05-10T09:15:00Z",
+      },
+      {
+        id: "3",
+        title: "Shoei RF-1400 Helmet - Size M",
+        price: 499,
+        location: "San Francisco, CA",
+        category: "gear",
+        condition: "New",
+        imageUrl: "/motorcycle-helmet.png",
+        isFeatured: false,
+        createdAt: "2023-05-18T11:45:00Z",
+      },
+      {
+        id: "4",
+        title: "2021 Ducati Panigale V4",
+        price: 23999,
+        location: "Los Angeles, CA",
+        category: "motorcycles",
+        condition: "Used",
+        imageUrl: "/ducati-panigale.png",
+        isFeatured: true,
+        createdAt: "2023-05-05T16:20:00Z",
+      },
+      {
+        id: "5",
+        title: "Alpinestars GP Pro R3 Gloves",
+        price: 229,
+        location: "Denver, CO",
+        category: "gear",
+        condition: "New",
+        imageUrl: "/placeholder.svg?height=600&width=800&query=motorcycle gloves",
+        isFeatured: false,
+        createdAt: "2023-05-20T10:30:00Z",
+      },
+      {
+        id: "6",
+        title: "2019 BMW R1250GS Adventure",
+        price: 16500,
+        location: "Phoenix, AZ",
+        category: "motorcycles",
+        condition: "Used",
+        imageUrl: "/placeholder.svg?height=600&width=800&query=bmw adventure motorcycle",
+        isFeatured: false,
+        createdAt: "2023-05-12T13:10:00Z",
+      },
+      {
+        id: "7",
+        title: "Yoshimura Exhaust System for GSX-R1000",
+        price: 899,
+        location: "Miami, FL",
+        category: "parts",
+        condition: "New",
+        imageUrl: "/placeholder.svg?height=600&width=800&query=motorcycle exhaust",
+        isFeatured: false,
+        createdAt: "2023-05-17T15:45:00Z",
+      },
+      {
+        id: "8",
+        title: "2018 Honda Africa Twin",
+        price: 10999,
+        location: "Chicago, IL",
+        category: "motorcycles",
+        condition: "Used",
+        imageUrl: "/placeholder.svg?height=600&width=800&query=honda africa twin motorcycle",
+        isFeatured: false,
+        createdAt: "2023-05-08T09:00:00Z",
+      },
+    ]
 
-    // Update router without page reload
-    router.replace(`/listings?${params.toString()}`, { scroll: false })
-  }, [
-    searchQuery,
-    selectedCategory,
-    selectedLocation,
-    selectedMake,
-    selectedModel,
-    priceRange,
-    conditions,
-    sortBy,
-    router,
-  ])
+    setListings(mockListings)
+  }, [])
 
-  // Apply filters whenever listings or filter criteria change
   useEffect(() => {
     applyFilters()
-  }, [
-    listings,
-    searchQuery,
-    selectedCategory,
-    selectedLocation,
-    selectedMake,
-    selectedModel,
-    priceRange,
-    conditions,
-    sortBy,
-  ])
+  }, [listings, searchQuery, selectedCategory, selectedLocation, priceRange, conditions, sortBy])
 
   const applyFilters = () => {
     let filtered = [...listings]
 
-    // Apply search query filter
+    // Apply search query
     if (searchQuery) {
-      filtered = filtered.filter(
-        (listing) =>
-          listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          listing.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          listing.make?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          listing.model?.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+      filtered = filtered.filter((listing) => listing.title.toLowerCase().includes(searchQuery.toLowerCase()))
     }
 
     // Apply category filter
@@ -119,16 +164,6 @@ function ListingsPageContent() {
       filtered = filtered.filter((listing) => listing.location.toLowerCase().includes(selectedLocation.toLowerCase()))
     }
 
-    // Apply make filter
-    if (selectedMake) {
-      filtered = filtered.filter((listing) => listing.make === selectedMake)
-    }
-
-    // Apply model filter (only if a make is also selected)
-    if (selectedMake && selectedModel) {
-      filtered = filtered.filter((listing) => listing.model === selectedModel)
-    }
-
     // Apply price range filter
     filtered = filtered.filter((listing) => listing.price >= priceRange[0] && listing.price <= priceRange[1])
 
@@ -139,24 +174,60 @@ function ListingsPageContent() {
 
     // Apply sorting
     switch (sortBy) {
-      case "priceLowToHigh":
-        filtered.sort((a, b) => a.price - b.price)
-        break
-      case "priceHighToLow":
-        filtered.sort((a, b) => b.price - a.price)
-        break
       case "newest":
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         break
       case "oldest":
         filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
         break
+      case "price-low":
+        filtered.sort((a, b) => a.price - b.price)
+        break
+      case "price-high":
+        filtered.sort((a, b) => b.price - a.price)
+        break
     }
+
     setFilteredListings(filtered)
   }
 
-  const handleConditionChange = (condition: string) => {
-    setConditions((prev) => (prev.includes(condition) ? prev.filter((c) => c !== condition) : [...prev, condition]))
+  const toggleFavorite = (id: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setFavorites((prev) => {
+      const newFavorites = new Set(prev)
+      if (newFavorites.has(id)) {
+        newFavorites.delete(id)
+        toast({
+          title: "Removed from favorites",
+          description: "Listing has been removed from your favorites",
+        })
+      } else {
+        newFavorites.add(id)
+        toast({
+          title: "Added to favorites",
+          description: "Listing has been added to your favorites",
+        })
+      }
+      return newFavorites
+    })
+  }
+
+  const toggleCondition = (condition: string) => {
+    setConditions((prev) => {
+      if (prev.includes(condition)) {
+        return prev.filter((c) => c !== condition)
+      } else {
+        return [...prev, condition]
+      }
+    })
   }
 
   const resetFilters = () => {
@@ -164,74 +235,53 @@ function ListingsPageContent() {
     setSelectedCategory("")
     setSelectedLocation("")
     setPriceRange([0, 50000])
-    setSelectedMake("")
-    setSelectedModel("")
     setConditions([])
     setSortBy("newest")
   }
 
-  // Dynamically get unique values for dropdowns
-  const availableCategories = Array.from(new Set(listings.map((l) => l.category).filter(Boolean))).sort()
-  const availableLocations = Array.from(new Set(listings.map((l) => l.location).filter(Boolean))).sort()
-  const availableConditions = Array.from(new Set(listings.map((l) => l.condition).filter(Boolean))).sort()
-  const availableMakes = Array.from(new Set(listings.map((l) => l.make).filter(Boolean))).sort()
-
-  const availableModels = selectedMake
-    ? Array.from(
-        new Set(
-          listings
-            .filter((l) => l.make === selectedMake)
-            .map((l) => l.model)
-            .filter(Boolean),
-        ),
-      ).sort()
-    : []
-
-  // Function to handle make change and reset model
-  const handleMakeChange = (make: string) => {
-    setSelectedMake(make)
-    setSelectedModel("") // Reset model when make changes
-  }
-
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6">
+    <div className="container py-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold">Motorcycle Listings</h1>
-        <Button onClick={() => setShowFilters(!showFilters)} variant="outline" className="sm:hidden">
-          <ListFilter className="mr-2 h-4 w-4" /> {showFilters ? "Hide" : "Show"} Filters
-        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Motorcycle Listings</h1>
+          <p className="text-muted-foreground">
+            {filteredListings.length} {filteredListings.length === 1 ? "listing" : "listings"} found
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowFilters(!showFilters)}>
+            <SlidersHorizontal className="h-4 w-4" />
+            Filters
+          </Button>
+          <Button asChild>
+            <Link href="/listings/create">Post a Listing</Link>
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-        {/* Filters Sidebar */}
-        <aside className={`md:col-span-1 ${showFilters ? "block" : "hidden"} md:block`}>
-          <div className="sticky top-20 space-y-6 rounded-lg border bg-card p-6 shadow">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Filters</h2>
-              <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary hover:text-primary/80">
-                Reset All
-              </Button>
-            </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        {/* Filters sidebar */}
+        <div className={`glassmorphic-card p-4 lg:block ${showFilters ? "block" : "hidden"}`}>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Filters</h2>
+            <Button variant="ghost" size="sm" onClick={resetFilters} className="h-8 text-xs">
+              Reset
+            </Button>
+          </div>
 
-            {/* Search Input */}
+          <div className="space-y-6">
             <div>
               <Label htmlFor="search" className="mb-2 block">
                 Search
               </Label>
-              <div className="relative">
-                <Input
-                  id="search"
-                  type="text"
-                  placeholder="Keywords, make, model..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              </div>
+              <Input
+                id="search"
+                placeholder="Search listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
 
-            {/* Category Filter */}
             <div>
               <Label htmlFor="category" className="mb-2 block">
                 Category
@@ -242,160 +292,149 @@ function ListingsPageContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {availableCategories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="motorcycles">Motorcycles</SelectItem>
+                  <SelectItem value="parts">Parts & Accessories</SelectItem>
+                  <SelectItem value="gear">Riding Gear</SelectItem>
+                  <SelectItem value="tools">Tools & Equipment</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Make Filter */}
-            <div>
-              <Label htmlFor="make" className="mb-2 block">
-                Make
-              </Label>
-              <Select value={selectedMake} onValueChange={handleMakeChange}>
-                <SelectTrigger id="make">
-                  <SelectValue placeholder="All Makes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Makes</SelectItem>
-                  {availableMakes.map((make) => (
-                    <SelectItem key={make} value={make}>
-                      {make}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Model Filter - Enabled only if a make is selected */}
-            <div>
-              <Label htmlFor="model" className="mb-2 block">
-                Model
-              </Label>
-              <Select
-                value={selectedModel}
-                onValueChange={setSelectedModel}
-                disabled={!selectedMake || availableModels.length === 0}
-              >
-                <SelectTrigger id="model">
-                  <SelectValue placeholder={!selectedMake ? "Select make first" : "All Models"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Models</SelectItem>
-                  {availableModels.map((model) => (
-                    <SelectItem key={model} value={model}>
-                      {model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Location Filter */}
             <div>
               <Label htmlFor="location" className="mb-2 block">
                 Location
               </Label>
               <Input
                 id="location"
-                type="text"
-                placeholder="City or Zip Code"
+                placeholder="City, State"
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
               />
             </div>
 
-            {/* Price Range Filter */}
             <div>
-              <Label className="mb-2 block">Price Range</Label>
-              <Slider
-                min={0}
-                max={50000}
-                step={500}
-                value={priceRange}
-                onValueChange={(value: [number, number]) => setPriceRange(value)}
-                className="my-4"
-              />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>${priceRange[0]}</span>
-                <span>
-                  ${priceRange[1]}
-                  {priceRange[1] === 50000 ? "+" : ""}
+              <div className="mb-2 flex items-center justify-between">
+                <Label>Price Range</Label>
+                <span className="text-sm">
+                  ${priceRange[0]} - ${priceRange[1]}
                 </span>
               </div>
+              <Slider
+                defaultValue={[0, 50000]}
+                max={50000}
+                step={100}
+                value={priceRange}
+                onValueChange={setPriceRange}
+                className="py-4"
+              />
             </div>
 
-            {/* Condition Filter */}
             <div>
               <Label className="mb-2 block">Condition</Label>
               <div className="space-y-2">
-                {availableConditions.map((condition) => (
-                  <div key={condition} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`condition-${condition}`}
-                      checked={conditions.includes(condition)}
-                      onCheckedChange={() => handleConditionChange(condition)}
-                    />
-                    <Label htmlFor={`condition-${condition}`} className="font-normal">
-                      {condition}
-                    </Label>
-                  </div>
-                ))}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="condition-new"
+                    checked={conditions.includes("New")}
+                    onCheckedChange={() => toggleCondition("New")}
+                  />
+                  <Label htmlFor="condition-new" className="font-normal">
+                    New
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="condition-used"
+                    checked={conditions.includes("Used")}
+                    onCheckedChange={() => toggleCondition("Used")}
+                  />
+                  <Label htmlFor="condition-used" className="font-normal">
+                    Used
+                  </Label>
+                </div>
               </div>
             </div>
-          </div>
-        </aside>
 
-        {/* Listings Grid */}
-        <main className="md:col-span-3">
-          <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing {filteredListings.length} of {listings.length} listings
-            </p>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
-                <SelectItem value="priceLowToHigh">Price: Low to High</SelectItem>
-                <SelectItem value="priceHighToLow">Price: High to Low</SelectItem>
-              </SelectContent>
-            </Select>
+            <div>
+              <Label htmlFor="sort" className="mb-2 block">
+                Sort By
+              </Label>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger id="sort">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+        </div>
 
+        {/* Listings grid */}
+        <div className="lg:col-span-3">
           {filteredListings.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredListings.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
+                <Card key={listing.id} className="glassmorphic-card overflow-hidden">
+                  <div className="relative">
+                    <Link href={`/listings/${listing.id}`}>
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <Image
+                          src={listing.imageUrl || "/placeholder.svg"}
+                          alt={listing.title}
+                          width={400}
+                          height={300}
+                          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                      </div>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-2 rounded-full bg-background/80 backdrop-blur-sm"
+                      onClick={() => toggleFavorite(listing.id)}
+                    >
+                      <Heart className={`h-5 w-5 ${favorites.has(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
+                      <span className="sr-only">Add to favorites</span>
+                    </Button>
+                    {listing.isFeatured && (
+                      <Badge className="absolute left-2 top-2" variant="secondary">
+                        Featured
+                      </Badge>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <Badge variant="outline">{listing.condition}</Badge>
+                      <span className="text-sm text-muted-foreground">{listing.location}</span>
+                    </div>
+                    <Link href={`/listings/${listing.id}`} className="group">
+                      <h3 className="line-clamp-1 text-lg font-semibold group-hover:text-primary">{listing.title}</h3>
+                    </Link>
+                    <p className="mt-1 text-xl font-bold">${listing.price.toLocaleString()}</p>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0">
+                    <Button asChild className="w-full">
+                      <Link href={`/listings/${listing.id}`}>View Details</Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
               ))}
             </div>
           ) : (
-            <div className="py-12 text-center">
-              <Search className="mx-auto mb-4 h-16 w-16 text-muted-foreground/50" />
-              <h3 className="text-xl font-semibold">No Listings Found</h3>
-              <p className="mt-2 text-muted-foreground">Try adjusting your filters or search query.</p>
-              <Button variant="outline" onClick={resetFilters} className="mt-6">
-                Clear All Filters
-              </Button>
+            <div className="glassmorphic-card flex flex-col items-center justify-center p-12 text-center">
+              <X className="mb-4 h-12 w-12 text-muted-foreground" />
+              <h3 className="text-xl font-semibold">No listings found</h3>
+              <p className="mb-6 text-muted-foreground">Try adjusting your filters or search criteria</p>
+              <Button onClick={resetFilters}>Reset Filters</Button>
             </div>
           )}
-        </main>
+        </div>
       </div>
     </div>
-  )
-}
-
-// Default export Page component wraps ListingsPageContent in Suspense
-export default function ListingsPage() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading listings...</div>}>
-      <ListingsPageContent />
-    </Suspense>
   )
 }
