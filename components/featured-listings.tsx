@@ -1,92 +1,60 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useInView } from "react-intersection-observer"
-import ListingCard from "@/components/listing-card"
-import { mockListings } from "@/lib/mock-data/listings"
-import { ListingSkeleton } from "@/components/ui/loading-skeleton"
-import { useToast } from "@/components/ui/use-toast"
+import ListingCard from "@/components/ui/listing-card"
+
+// Mock featured listings data
+const mockFeaturedListings = [
+  {
+    id: "1",
+    title: "2023 Kawasaki Ninja ZX-10R",
+    price: 16999,
+    location: "Los Angeles, CA",
+    category: "motorcycles",
+    condition: "New",
+    imageUrl: "/kawasaki-ninja-motorcycle.png",
+    isFeatured: true,
+    createdAt: "2023-05-01T12:00:00Z",
+  },
+  {
+    id: "2",
+    title: "2022 Harley-Davidson Street Glide",
+    price: 24999,
+    location: "Phoenix, AZ",
+    category: "motorcycles",
+    condition: "Used",
+    imageUrl: "/classic-harley.png",
+    isFeatured: true,
+    createdAt: "2023-05-02T14:30:00Z",
+  },
+  {
+    id: "3",
+    title: "2023 Zero SR/F Premium",
+    price: 23495,
+    location: "San Francisco, CA",
+    category: "electric",
+    condition: "New",
+    imageUrl: "/placeholder.svg?height=600&width=800&query=zero electric motorcycle",
+    isFeatured: true,
+    createdAt: "2023-05-03T09:15:00Z",
+  },
+  {
+    id: "4",
+    title: "AGV Pista GP RR Helmet",
+    price: 1399,
+    location: "Miami, FL",
+    category: "gear",
+    condition: "New",
+    imageUrl: "/motorcycle-helmet.png",
+    isFeatured: true,
+    createdAt: "2023-05-04T16:20:00Z",
+  },
+]
 
 export default function FeaturedListings() {
-  const [listings, setListings] = useState(mockListings.filter((listing) => listing.isFeatured))
-  const [isLoading, setIsLoading] = useState(true)
-  const [savedListings, setSavedListings] = useState<string[]>([])
-  const { toast } = useToast()
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  })
-
-  // Simulate loading data
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  // Load saved listings from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("savedListings")
-    if (saved) {
-      setSavedListings(JSON.parse(saved))
-    }
-  }, [])
-
-  const handleSave = useCallback(
-    (id: string) => {
-      setSavedListings((prev) => {
-        const newSaved = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-
-        // Save to localStorage
-        localStorage.setItem("savedListings", JSON.stringify(newSaved))
-
-        // Show toast
-        toast({
-          title: prev.includes(id) ? "Removed from favorites" : "Added to favorites",
-          description: prev.includes(id)
-            ? "The listing has been removed from your favorites."
-            : "The listing has been added to your favorites.",
-          duration: 3000,
-        })
-
-        return newSaved
-      })
-    },
-    [toast],
-  )
-
-  if (isLoading) {
-    return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {Array(3)
-          .fill(0)
-          .map((_, i) => (
-            <ListingSkeleton key={i} />
-          ))}
-      </div>
-    )
-  }
-
-  if (listings.length === 0) {
-    return (
-      <div className="glassmorphic-card p-8 text-center">
-        <h3 className="text-xl font-semibold">No featured listings available</h3>
-        <p className="mt-2 text-muted-foreground">Check back later for new featured listings.</p>
-      </div>
-    )
-  }
-
   return (
-    <div ref={ref} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {listings.map((listing) => (
-        <ListingCard
-          key={listing.id}
-          listing={listing}
-          onSave={handleSave}
-          isSaved={savedListings.includes(listing.id)}
-        />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {mockFeaturedListings.map((listing) => (
+        <ListingCard key={listing.id} listing={listing} />
       ))}
     </div>
   )

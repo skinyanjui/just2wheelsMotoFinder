@@ -72,6 +72,17 @@ export function SimilarListings({ category, currentListingId }: SimilarListingsP
             isFeatured: false,
             createdAt: new Date().toISOString(),
           },
+          {
+            id: "5",
+            title: "2023 Zero SR/F Electric",
+            price: 19995,
+            location: "Seattle, WA",
+            category: "electric",
+            condition: "New",
+            imageUrl: "/placeholder.svg?height=300&width=400&query=electric motorcycle",
+            isFeatured: true,
+            createdAt: new Date().toISOString(),
+          },
         ].filter((listing) => listing.id !== currentListingId)
 
         setListings(mockListings)
@@ -117,9 +128,12 @@ export function SimilarListings({ category, currentListingId }: SimilarListingsP
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {listings.map((listing) => (
-        <Card key={listing.id} className="glassmorphic-card overflow-hidden">
+        <Card
+          key={listing.id}
+          className="glassmorphic-card overflow-hidden transition-all duration-300 hover:shadow-lg"
+        >
           <div className="relative">
             <Link href={`/listings/${listing.id}`}>
               <div className="aspect-[4/3] overflow-hidden">

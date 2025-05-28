@@ -1,91 +1,74 @@
-import Link from "next/link"
-import Image from "next/image"
+"use client"
 
-interface Category {
-  id: string
-  name: string
-  slug: string
-  count: number
-  imageUrl: string
-}
+import Link from "next/link"
+import { Card, CardContent } from "@/components/ui/card"
+import { Bike, Wrench, HardHat, Hammer, Zap, Grid3x3 } from "lucide-react"
+
+const categories = [
+  {
+    name: "Motorcycles",
+    slug: "motorcycles",
+    icon: Bike,
+    description: "Sport bikes, cruisers, and more",
+    color: "text-blue-600 dark:text-blue-400",
+  },
+  {
+    name: "Parts & Accessories",
+    slug: "parts",
+    icon: Wrench,
+    description: "OEM and aftermarket parts",
+    color: "text-green-600 dark:text-green-400",
+  },
+  {
+    name: "Riding Gear",
+    slug: "gear",
+    icon: HardHat,
+    description: "Helmets, jackets, and safety gear",
+    color: "text-purple-600 dark:text-purple-400",
+  },
+  {
+    name: "Tools & Equipment",
+    slug: "tools",
+    icon: Hammer,
+    description: "Maintenance and repair tools",
+    color: "text-orange-600 dark:text-orange-400",
+  },
+  {
+    name: "Electric",
+    slug: "electric",
+    icon: Zap,
+    description: "Electric motorcycles and scooters",
+    color: "text-yellow-600 dark:text-yellow-400",
+  },
+  {
+    name: "All Categories",
+    slug: "",
+    icon: Grid3x3,
+    description: "Browse all listings",
+    color: "text-gray-600 dark:text-gray-400",
+  },
+]
 
 export default function CategoryGrid() {
-  const categories: Category[] = [
-    {
-      id: "1",
-      name: "Sport Bikes",
-      slug: "sport-bikes",
-      count: 245,
-      imageUrl: "/sport-motorcycle.png",
-    },
-    {
-      id: "2",
-      name: "Cruisers",
-      slug: "cruisers",
-      count: 189,
-      imageUrl: "/classic-cruiser-highway.png",
-    },
-    {
-      id: "3",
-      name: "Adventure",
-      slug: "adventure",
-      count: 156,
-      imageUrl: "/placeholder-loifu.png",
-    },
-    {
-      id: "4",
-      name: "Touring",
-      slug: "touring",
-      count: 112,
-      imageUrl: "/touring-motorcycle.png",
-    },
-    {
-      id: "5",
-      name: "Off-Road",
-      slug: "off-road",
-      count: 203,
-      imageUrl: "/placeholder.svg?height=400&width=600&query=dirt motorcycle",
-    },
-    {
-      id: "6",
-      name: "Scooters",
-      slug: "scooters",
-      count: 87,
-      imageUrl: "/placeholder.svg?height=400&width=600&query=scooter motorcycle",
-    },
-    {
-      id: "7",
-      name: "Vintage",
-      slug: "vintage",
-      count: 76,
-      imageUrl: "/placeholder.svg?height=400&width=600&query=vintage motorcycle",
-    },
-    {
-      id: "8",
-      name: "Parts & Accessories",
-      slug: "parts-accessories",
-      count: 532,
-      imageUrl: "/placeholder.svg?height=400&width=600&query=motorcycle parts",
-    },
-  ]
-
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {categories.map((category) => (
-        <Link key={category.id} href={`/categories/${category.slug}`} className="group overflow-hidden rounded-lg">
-          <div className="relative aspect-square overflow-hidden">
-            <Image
-              src={category.imageUrl || "/placeholder.svg"}
-              alt={category.name}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-4 text-white">
-              <h3 className="text-lg font-semibold">{category.name}</h3>
-              <p className="text-sm text-white/80">{category.count} listings</p>
-            </div>
-          </div>
+        <Link
+          key={category.slug}
+          href={`/listings${category.slug ? `?category=${category.slug}` : ""}`}
+          className="group"
+        >
+          <Card className="glassmorphic-card h-full transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <CardContent className="flex flex-col items-center justify-center p-3 text-center sm:p-4 lg:p-5">
+              <div
+                className={`mb-3 rounded-full bg-background/80 p-3 transition-colors group-hover:bg-primary/10 ${category.color}`}
+              >
+                <category.icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
+              </div>
+              <h3 className="mb-1 text-sm font-semibold sm:text-base">{category.name}</h3>
+              <p className="hidden text-xs text-muted-foreground sm:block">{category.description}</p>
+            </CardContent>
+          </Card>
         </Link>
       ))}
     </div>

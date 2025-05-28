@@ -1,52 +1,43 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function SearchClient() {
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const query = searchParams.get("q") || ""
-  const [searchInput, setSearchInput] = useState(query)
+  const searchParams = useSearchParams()
+  const category = searchParams.get("category")
+  const [selectedCategory, setSelectedCategory] = useState(category || "")
 
-  // Update input when URL changes
   useEffect(() => {
-    setSearchInput(query)
-  }, [query])
+    setSelectedCategory(category || "")
+  }, [category])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchInput.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`)
+  const handleCategoryChange = (value: string) => {
+    const params = new URLSearchParams(searchParams)
+
+    if (value) {
+      params.set("category", value)
     } else {
-      router.push("/search")
+      params.delete("category")
     }
+
+    router.push("/search?" + params.toString())
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <form onSubmit={handleSubmit} className="relative">
-        <Input
-          type="search"
-          placeholder="Search listings..."
-          className="w-full pl-10 pr-4 py-2 rounded-md"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          aria-label="Search listings"
-        />
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Button type="submit" className="sr-only">
-          Search
-        </Button>
-      </form>
-      <p className="mt-4 text-center text-muted-foreground">
-        {query ? `Showing results for "${query}"` : "Enter your search query above."}
-      </p>
-    </div>
+    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Category" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="">All</SelectItem>
+        <SelectItem value="tools">Tools & Equipment</SelectItem>
+        <SelectItem value="electric">Electric</SelectItem>
+        <SelectItem value="furniture">Furniture</SelectItem>
+        <SelectItem value="clothing">Clothing</SelectItem>
+      </SelectContent>
+    </Select>
   )
 }
