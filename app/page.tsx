@@ -42,7 +42,7 @@ export default function Home() {
 
       {/* Featured Listings */}
       <section className="container">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Featured Listings</h2>
           <Button asChild variant="outline">
             <Link href="/listings">View All</Link>
@@ -53,13 +53,13 @@ export default function Home() {
 
       {/* Categories */}
       <section className="container">
-        <h2 className="mb-8 text-3xl font-bold tracking-tight">Browse by Category</h2>
+        <h2 className="mb-6 text-3xl font-bold tracking-tight">Browse by Category</h2>
         <CategoryGrid />
       </section>
 
       {/* How It Works */}
       <section className="container">
-        <h2 className="mb-8 text-3xl font-bold tracking-tight">How It Works</h2>
+        <h2 className="mb-6 text-3xl font-bold tracking-tight">How It Works</h2>
         <HowItWorks />
       </section>
 

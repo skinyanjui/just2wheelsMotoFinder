@@ -118,16 +118,6 @@ function Header() {
                         <Tag className="h-4 w-4" />
                         Listings
                       </Link>
-                      <Link
-                        href="/categories"
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted",
-                          pathname === "/categories" && "bg-muted font-medium",
-                        )}
-                      >
-                        <Tag className="h-4 w-4" />
-                        Categories
-                      </Link>
                     </nav>
 
                     {user && (
@@ -252,15 +242,6 @@ function Header() {
               )}
             >
               Listings
-            </Link>
-            <Link
-              href="/categories"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname.startsWith("/categories") ? "text-primary" : "text-muted-foreground",
-              )}
-            >
-              Categories
             </Link>
           </nav>
         )}
