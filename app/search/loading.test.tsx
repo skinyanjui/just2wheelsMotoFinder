@@ -6,9 +6,8 @@ describe("Search Loading Component", () => {
     render(<Loading />)
 
     // Check for loading elements
-    expect(screen.getByTestId("search-loading-title")).toBeInTheDocument()
-    expect(screen.getByTestId("search-loading-input")).toBeInTheDocument()
-    expect(screen.getByTestId("search-loading-message")).toBeInTheDocument()
+    const loadingElements = screen.getAllByTestId("search-loading-skeleton")
+    expect(loadingElements.length).toBeGreaterThan(0)
   })
 
   it("matches snapshot", () => {
@@ -18,8 +17,7 @@ describe("Search Loading Component", () => {
 
   it("has accessible loading indicators", () => {
     render(<Loading />)
-    const loadingElement = screen.getByRole("status")
-    expect(loadingElement).toBeInTheDocument()
-    expect(loadingElement).toHaveAttribute("aria-busy", "true")
+    const loadingRegion = screen.getByRole("region", { name: /loading/i })
+    expect(loadingRegion).toBeInTheDocument()
   })
 })

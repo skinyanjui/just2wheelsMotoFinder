@@ -26,8 +26,23 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/categories" className="text-muted-foreground hover:text-foreground">
+                  Categories
+                </Link>
+              </li>
+              <li>
                 <Link href="/listings/create" className="text-muted-foreground hover:text-foreground">
                   Post a Listing
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">Information</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/about" className="text-muted-foreground hover:text-foreground">
+                  About Us
                 </Link>
               </li>
               <li>
@@ -36,18 +51,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-foreground">
-                  About Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-4 text-lg font-semibold">Support</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/contact" className="text-muted-foreground hover:text-foreground">
-                  Contact Us
+                <Link href="/safety-tips" className="text-muted-foreground hover:text-foreground">
+                  Safety Tips
                 </Link>
               </li>
               <li>
@@ -55,6 +60,16 @@ export default function Footer() {
                   FAQ
                 </Link>
               </li>
+              <li>
+                <Link href="/contact" className="text-muted-foreground hover:text-foreground">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">Legal</h3>
+            <ul className="space-y-2 text-sm mb-6">
               <li>
                 <Link href="/terms-of-service" className="text-muted-foreground hover:text-foreground">
                   Terms of Service
@@ -65,14 +80,8 @@ export default function Footer() {
                   Privacy Policy
                 </Link>
               </li>
-              <li>
-                <Link href="/safety-tips" className="text-muted-foreground hover:text-foreground">
-                  Safety Tips
-                </Link>
-              </li>
             </ul>
-          </div>
-          <div>
+
             <h3 className="mb-4 text-lg font-semibold">Newsletter</h3>
             <p className="mb-4 text-sm text-muted-foreground">
               Subscribe to our newsletter for the latest listings and news.
@@ -95,8 +104,29 @@ export default function Footer() {
             </form>
           </div>
         </div>
-        <div className="mt-12 border-t pt-6 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Just2Wheels. All rights reserved.</p>
+
+        <div className="mt-8 flex flex-col items-center justify-between space-y-4 border-t pt-8 md:flex-row md:space-y-0">
+          <div className="flex space-x-4">
+            <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Facebook className="h-5 w-5" />
+              <span className="sr-only">Facebook</span>
+            </Link>
+            <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Twitter className="h-5 w-5" />
+              <span className="sr-only">Twitter</span>
+            </Link>
+            <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Instagram className="h-5 w-5" />
+              <span className="sr-only">Instagram</span>
+            </Link>
+            <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Youtube className="h-5 w-5" />
+              <span className="sr-only">YouTube</span>
+            </Link>
+          </div>
+          <p className="text-center text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} Just2Wheels. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

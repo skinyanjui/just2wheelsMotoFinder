@@ -1,36 +1,39 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Paths that require authentication
+// Define paths that require authentication
 const protectedPaths = [
-  "/profile",
-  "/messages",
   "/listings/create",
   "/listings/my-listings",
-  "/saved-searches",
+  "/messages",
+  "/profile",
   "/favorites",
+  "/saved-searches",
   "/notifications",
 ]
 
-// Paths that should redirect to dashboard if user is already authenticated
+// Define paths that should redirect authenticated users
 const authPaths = ["/auth/login", "/auth/register"]
 
 export function middleware(request: NextRequest) {
-  const currentPath = request.nextUrl.pathname
+  const { pathname } = request.nextUrl
 
-  // Check if user is authenticated (has a session token)
+  // Check if user is authenticated by looking for the auth cookie
   const isAuthenticated = request.cookies.has("auth-token")
 
-  // If accessing a protected path without authentication
-  if (protectedPaths.some((path) => currentPath.startsWith(path)) && !isAuthenticated) {
-    const url = new URL("/auth/login", request.url)
-    url.searchParams.set("callbackUrl", encodeURI(currentPath))
+  // Handle protected routes - redirect to login if not authenticated
+  if (protectedPaths.some((path) => pathname.startsWith(path)) && !isAuthenticated) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/login"
+    url.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(url)
   }
 
-  // If accessing auth pages while already authenticated
-  if (authPaths.some((path) => currentPath === path) && isAuthenticated) {
-    return NextResponse.redirect(new URL("/", request.url))
+  // Redirect authenticated users away from auth pages
+  if (authPaths.some((path) => pathname === path) && isAuthenticated) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
   }
 
   return NextResponse.next()
@@ -39,12 +42,12 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
+     * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
+     * - public (public files)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
 }

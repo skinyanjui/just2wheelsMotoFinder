@@ -1,0 +1,101 @@
+# Error Handling Patterns in Just2Wheels
+
+This document outlines the error handling patterns used throughout the Just2Wheels application.
+
+## Error Boundary Hierarchy
+
+The application uses a hierarchical approach to error handling:
+
+1. **Global Error Handling**: The `global-error.tsx` file handles critical errors at the root level.
+2. **Route Error Handling**: Each route has an `error.tsx` file that handles errors specific to that route.
+3. **Component-Level Error Handling**: The `ErrorBoundaryWrapper` component can be used to wrap specific components.
+
+## Error Types
+
+We handle different types of errors in specific ways:
+
+### API Errors
+
+\`\`\`tsx
+try {
+  const response = await fetch('/api/endpoint');
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+} catch (error) {
+  console.error('API request failed:', error);
+  throw error; // Re-throw to be caught by error boundary
+}
+\`\`\`
+
+### Form Validation Errors
+
+\`\`\`tsx
+const validateForm = (data) => {
+  const errors = {};
+  
+  if (!data.email) {
+    errors.email = 'Email is required';
+  } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+    errors.email = 'Email is invalid';
+  }
+  
+  return errors;
+};
+\`\`\`
+
+### Authentication Errors
+
+Authentication errors are handled by the auth middleware, which redirects unauthenticated users to the login page.
+
+## Using Error Boundaries
+
+Wrap components that might throw errors in an `ErrorBoundaryWrapper`:
+
+\`\`\`tsx
+import { ErrorBoundaryWrapper } from '@/components/error-boundary-wrapper';
+
+export default function MyComponent() {
+  return (
+    <ErrorBoundaryWrapper>
+      <ComponentThatMightThrow />
+    </ErrorBoundaryWrapper>
+  );
+}
+\`\`\`
+
+## Error Logging
+
+All errors are logged to the console in development. In production, they would be sent to an error monitoring service.
+
+## User-Facing Error Messages
+
+We follow these guidelines for user-facing error messages:
+
+1. Be specific but not technical
+2. Offer a solution when possible
+3. Maintain a consistent tone
+4. Don't blame the user
+
+## Testing Error Scenarios
+
+Each error scenario should have corresponding tests:
+
+\`\`\`tsx
+it('displays an error message when API request fails', async () => {
+  // Mock a failed API request
+  server.use(
+    rest.get('/api/endpoint', (req, res, ctx) => {
+      return res(ctx.status(500));
+    })
+  );
+  
+  render(<MyComponent />);
+  
+  // Wait for the error message to appear
+  const errorMessage = await screen.findByText(/something went wrong/i);
+  expect(errorMessage).toBeInTheDocument();
+});
+\`\`\`
