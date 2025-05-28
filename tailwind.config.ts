@@ -19,8 +19,8 @@ const config = {
       },
     },
     extend: {
-      screens: {
-        xs: "480px",
+      fontFamily: {
+        sans: ["var(--font-ibm-plex-sans)"],
       },
       colors: {
         border: "hsl(var(--border))",
