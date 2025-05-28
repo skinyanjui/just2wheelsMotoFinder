@@ -70,7 +70,7 @@ export default function CategoryGrid() {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-6">
       {categories.map((category) => (
         <Link key={category.id} href={`/categories/${category.slug}`} className="group overflow-hidden rounded-lg">
           <div className="relative aspect-square overflow-hidden">
@@ -79,11 +79,12 @@ export default function CategoryGrid() {
               alt={category.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 20vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-4 text-white">
-              <h3 className="text-lg font-semibold">{category.name}</h3>
-              <p className="text-sm text-white/80">{category.count} listings</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 p-3 sm:p-4">
+              <h3 className="text-base font-semibold text-white sm:text-lg">{category.name}</h3>
+              <p className="text-xs text-white/80 sm:text-sm">{category.count} listings</p>
             </div>
           </div>
         </Link>

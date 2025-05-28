@@ -377,7 +377,7 @@ export default function ListingsPage() {
         {/* Listings grid */}
         <div className="lg:col-span-3">
           {filteredListings.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
               {filteredListings.map((listing) => (
                 <Card key={listing.id} className="glassmorphic-card overflow-hidden">
                   <div className="relative">
@@ -407,17 +407,19 @@ export default function ListingsPage() {
                       </Badge>
                     )}
                   </div>
-                  <CardContent className="p-4">
-                    <div className="mb-2 flex items-center justify-between">
+                  <CardContent className="p-3 p-4">
+                    <div className="mb-1.5 flex items-center justify-between">
                       <Badge variant="outline">{listing.condition}</Badge>
-                      <span className="text-sm text-muted-foreground">{listing.location}</span>
+                      <span className="text-xs text-muted-foreground">{listing.location}</span>
                     </div>
                     <Link href={`/listings/${listing.id}`} className="group">
-                      <h3 className="line-clamp-1 text-lg font-semibold group-hover:text-primary">{listing.title}</h3>
+                      <h3 className="line-clamp-1 text-base font-semibold group-hover:text-primary md:text-lg">
+                        {listing.title}
+                      </h3>
                     </Link>
-                    <p className="mt-1 text-xl font-bold">${listing.price.toLocaleString()}</p>
+                    <p className="mt-1 text-lg font-bold md:text-xl">${listing.price.toLocaleString()}</p>
                   </CardContent>
-                  <CardFooter className="p-4 pt-0">
+                  <CardFooter className="p-3 pt-0 md:p-4 md:pt-0">
                     <Button asChild className="w-full">
                       <Link href={`/listings/${listing.id}`}>View Details</Link>
                     </Button>
