@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { sql } from "@/lib/db"
-import { compare } from "bcrypt"
+import { compare } from "bcryptjs" // Changed from bcrypt to bcryptjs
 import { sign } from "jsonwebtoken"
 import { cookies } from "next/headers"
 

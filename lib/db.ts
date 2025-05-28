@@ -1,14 +1,14 @@
-import { neon, neonConfig } from "@neondatabase/serverless"
-import { drizzle } from "drizzle-orm/neon-http"
+import { neon } from "@neondatabase/serverless"
 
-// Configure neon to use WebSocket for better performance
-neonConfig.fetchConnectionCache = true
+// Create a SQL client with the connection string
+export const sql = neon(process.env.DATABASE_URL!)
 
-// Create a SQL client
-const sql = neon(process.env.DATABASE_URL!)
-
-// Create a drizzle client for more structured queries (optional)
-export const db = drizzle(sql)
-
-// Export the raw SQL client for direct queries
-export { sql }
+// Helper function to execute a query and return the results
+export async function query(query: string, params: any[] = []) {
+  try {
+    return await sql(query, params)
+  } catch (error) {
+    console.error("Database query error:", error)
+    throw error
+  }
+}
