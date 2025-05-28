@@ -19,18 +19,46 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Check if user is authenticated by looking for the auth cookie
-  const isAuthenticated = request.cookies.has("auth-token")
+  const authToken = request.cookies.get("auth-token")
+  const isAuthenticated = !!authToken?.value
+
+  // For a real app, we would verify the token here
+  // This is a simplified implementation
+  let tokenIsValid = false
+
+  if (isAuthenticated) {
+    try {
+      // Basic validation - check if token is properly formatted
+      const decodedToken = JSON.parse(atob(authToken.value))
+      const currentTime = Date.now() / 1000
+
+      // Check if token has required fields and is not expired
+      tokenIsValid = !!(decodedToken.sub && decodedToken.exp && decodedToken.exp > currentTime)
+    } catch (error) {
+      console.error("Token validation failed:", error)
+      tokenIsValid = false
+    }
+  }
 
   // Handle protected routes - redirect to login if not authenticated
-  if (protectedPaths.some((path) => pathname.startsWith(path)) && !isAuthenticated) {
+  if (protectedPaths.some((path) => pathname.startsWith(path)) && (!isAuthenticated || !tokenIsValid)) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
     url.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(url)
+
+    // Create response with redirect
+    const response = NextResponse.redirect(url)
+
+    // If token is invalid, clear it
+    if (isAuthenticated && !tokenIsValid) {
+      response.cookies.delete("auth-token")
+    }
+
+    return response
   }
 
   // Redirect authenticated users away from auth pages
-  if (authPaths.some((path) => pathname === path) && isAuthenticated) {
+  if (authPaths.some((path) => pathname === path) && isAuthenticated && tokenIsValid) {
     const url = request.nextUrl.clone()
     url.pathname = "/"
     return NextResponse.redirect(url)
