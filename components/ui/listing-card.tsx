@@ -21,6 +21,9 @@ interface ListingCardProps {
     imageUrl: string
     isFeatured?: boolean
     createdAt: string
+    year?: number
+    mileage?: number
+    engineSize?: string
   }
 }
 
@@ -35,7 +38,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
 
   return (
     <Link href={`/listings/${listing.id}`} className="block group">
-      <Card className="glassmorphic-card h-full overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+      <Card className="glassmorphic-card h-full overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <Image
             src={imageError ? "/placeholder.svg?height=400&width=600" : listing.imageUrl}
@@ -50,7 +53,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
           )}
           <button
             onClick={handleFavoriteClick}
-            className="absolute right-2 top-2 rounded-full bg-background/80 p-2 backdrop-blur-sm transition-all hover:bg-background/90"
+            className="absolute right-2 top-2 rounded-full bg-background/80 p-1.5 backdrop-blur-sm transition-all hover:bg-background/90"
             aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
           >
             <Heart
@@ -58,10 +61,32 @@ export default function ListingCard({ listing }: ListingCardProps) {
             />
           </button>
         </div>
-        <CardContent className="p-4">
-          <h3 className="mb-2 line-clamp-2 text-lg font-semibold">{listing.title}</h3>
-          <p className="mb-3 text-2xl font-bold text-primary">${listing.price.toLocaleString()}</p>
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <CardContent className="p-3">
+          <h3 className="mb-1 line-clamp-1 text-base font-semibold">{listing.title}</h3>
+          <p className="mb-2 text-lg font-bold text-primary">${listing.price.toLocaleString()}</p>
+
+          {/* Additional details for motorcycles */}
+          {listing.category === "motorcycles" && (
+            <div className="mb-2 flex flex-wrap gap-2 text-xs">
+              {listing.year && (
+                <Badge variant="outline" className="font-normal">
+                  {listing.year}
+                </Badge>
+              )}
+              {listing.mileage && (
+                <Badge variant="outline" className="font-normal">
+                  {listing.mileage.toLocaleString()} mi
+                </Badge>
+              )}
+              {listing.engineSize && (
+                <Badge variant="outline" className="font-normal">
+                  {listing.engineSize}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <MapPin className="h-3 w-3" />
               <span className="line-clamp-1">{listing.location}</span>

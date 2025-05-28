@@ -27,6 +27,7 @@ import {
   Home,
   Tag,
   Plus,
+  PenSquare,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -118,6 +119,20 @@ function Header() {
                         <Tag className="h-4 w-4" />
                         Listings
                       </Link>
+
+                      {/* Always show Create Listing link for authenticated users */}
+                      {user && (
+                        <Link
+                          href="/listings/create"
+                          className={cn(
+                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted",
+                            pathname === "/listings/create" && "bg-muted font-medium",
+                          )}
+                        >
+                          <PenSquare className="h-4 w-4" />
+                          Create Listing
+                        </Link>
+                      )}
                     </nav>
 
                     {user && (
@@ -243,6 +258,19 @@ function Header() {
             >
               Listings
             </Link>
+
+            {/* Always show Create Listing link for authenticated users */}
+            {user && (
+              <Link
+                href="/listings/create"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  pathname === "/listings/create" ? "text-primary" : "text-muted-foreground",
+                )}
+              >
+                Create Listing
+              </Link>
+            )}
           </nav>
         )}
 
@@ -274,12 +302,18 @@ function Header() {
             </Button>
           )}
 
-          {/* Post a listing button */}
-          {!isTablet && (
-            <Button asChild>
+          {/* Post a listing button - always visible for authenticated users */}
+          {user && (
+            <Button asChild className={isTablet ? "px-3" : ""}>
               <Link href="/listings/create">
-                <Plus className="mr-2 h-4 w-4" />
-                Post a Listing
+                {isTablet ? (
+                  <PenSquare className="h-5 w-5" />
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Post a Listing
+                  </>
+                )}
               </Link>
             </Button>
           )}
@@ -380,6 +414,12 @@ function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/listings/create">
+                      <PenSquare className="mr-2 h-4 w-4" />
+                      <span>Create Listing</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/messages">
                       <MessageSquare className="mr-2 h-4 w-4" />
                       <span>Messages</span>
@@ -432,5 +472,4 @@ function Header() {
   )
 }
 
-// Add default export
 export default Header
