@@ -27,7 +27,7 @@ import {
   Home,
   Tag,
   Plus,
-  PenSquare,
+  Bike,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -113,24 +113,28 @@ function Header() {
                         href="/listings"
                         className={cn(
                           "flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted",
-                          pathname === "/listings" && "bg-muted font-medium",
+                          pathname === "/listings" ||
+                            (pathname.startsWith("/listings/") &&
+                              pathname !== "/listings/create" &&
+                              pathname !== "/listings/my-listings" &&
+                              "bg-muted font-medium"),
                         )}
                       >
-                        <Tag className="h-4 w-4" />
-                        Listings
+                        <Bike className="h-4 w-4" />
+                        Browse Motorcycles
                       </Link>
 
-                      {/* Always show Create Listing link for authenticated users */}
+                      {/* Primary action for authenticated users */}
                       {user && (
                         <Link
                           href="/listings/create"
                           className={cn(
-                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted",
-                            pathname === "/listings/create" && "bg-muted font-medium",
+                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10",
+                            pathname === "/listings/create" && "bg-primary/10",
                           )}
                         >
-                          <PenSquare className="h-4 w-4" />
-                          Create Listing
+                          <Plus className="h-4 w-4" />
+                          Sell Your Motorcycle
                         </Link>
                       )}
                     </nav>
@@ -235,7 +239,7 @@ function Header() {
           </Link>
         </div>
 
-        {/* Desktop navigation */}
+        {/* Desktop navigation - Simplified */}
         {!isMobile && (
           <nav className="mx-6 hidden items-center space-x-4 md:flex lg:space-x-6">
             <Link
@@ -251,26 +255,15 @@ function Header() {
               href="/listings"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
-                pathname === "/listings" || pathname.startsWith("/listings/")
+                (pathname === "/listings" || pathname.startsWith("/listings/")) &&
+                  pathname !== "/listings/create" &&
+                  pathname !== "/listings/my-listings"
                   ? "text-primary"
                   : "text-muted-foreground",
               )}
             >
-              Listings
+              Browse Motorcycles
             </Link>
-
-            {/* Always show Create Listing link for authenticated users */}
-            {user && (
-              <Link
-                href="/listings/create"
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === "/listings/create" ? "text-primary" : "text-muted-foreground",
-                )}
-              >
-                Create Listing
-              </Link>
-            )}
           </nav>
         )}
 
@@ -281,7 +274,7 @@ function Header() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search listings..."
+                placeholder="Search motorcycles..."
                 className="w-full rounded-full bg-muted pl-9 pr-4"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -290,7 +283,7 @@ function Header() {
           </div>
         )}
 
-        {/* Right side actions */}
+        {/* Right side actions - Simplified */}
         <div className="flex items-center gap-2">
           {/* Search button (mobile only) */}
           {isMobile && (
@@ -302,23 +295,36 @@ function Header() {
             </Button>
           )}
 
-          {/* Post a listing button - always visible for authenticated users */}
-          {user && (
-            <Button asChild className={isTablet ? "px-3" : ""}>
+          {/* Primary action button - Sell Your Motorcycle */}
+          {user ? (
+            <Button asChild className="bg-primary hover:bg-primary/90">
               <Link href="/listings/create">
                 {isTablet ? (
-                  <PenSquare className="h-5 w-5" />
+                  <Plus className="h-5 w-5" />
                 ) : (
                   <>
                     <Plus className="mr-2 h-4 w-4" />
-                    Post a Listing
+                    Sell Your Motorcycle
+                  </>
+                )}
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline">
+              <Link href="/auth/login">
+                {isTablet ? (
+                  <Plus className="h-5 w-5" />
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Sell Your Motorcycle
                   </>
                 )}
               </Link>
             </Button>
           )}
 
-          {/* Notifications */}
+          {/* Notifications - Only for authenticated users */}
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -367,7 +373,7 @@ function Header() {
             </DropdownMenu>
           )}
 
-          {/* Messages */}
+          {/* Messages - Only for authenticated users */}
           {user && (
             <Button variant="ghost" size="icon" asChild>
               <Link href="/messages" className="relative">
@@ -381,7 +387,7 @@ function Header() {
           {/* Theme toggle */}
           <ModeToggle />
 
-          {/* User menu */}
+          {/* User menu - Simplified */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -402,21 +408,9 @@ function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link href="/listings/my-listings">
                       <Tag className="mr-2 h-4 w-4" />
                       <span>My Listings</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/listings/create">
-                      <PenSquare className="mr-2 h-4 w-4" />
-                      <span>Create Listing</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -435,6 +429,12 @@ function Header() {
                     <Link href="/saved-searches">
                       <BookmarkCheck className="mr-2 h-4 w-4" />
                       <span>Saved Searches</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile Settings</span>
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
